@@ -1,5 +1,7 @@
 import wave
 import sys
+import numpy as np
+from scipy.io import wavfile
 
 import pyaudio
 
@@ -13,6 +15,9 @@ if len(sys.argv) < 2:
 with wave.open(sys.argv[1], 'rb') as wf:
     # Instantiate PyAudio and initialize PortAudio system resources (1)
     p = pyaudio.PyAudio()
+    samplerate, data = wavfile.read(sys.argv[1])
+    print(samplerate)
+    print(data)
 
     # Open stream (2)
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
