@@ -26,8 +26,8 @@ with wave.open(sys.argv[1], 'rb') as wf:
                     output=True)
 
     # Play samples from the wave file (3)
-    while len(data := wf.readframes(CHUNK)):  # Requires Python 3.8+ for :=
-        stream.write(data)
+    while len(datawf := wf.readframes(data[0])):  # Requires Python 3.8+ for :=
+        stream.write(datawf)
 
     # Close stream (4)
     stream.close()
