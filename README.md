@@ -1,2 +1,3 @@
-# portfolio
-My portfolio for whatever I make
+# stuff
+a collection of stuff I make and have made
+feel free to suggest changes
