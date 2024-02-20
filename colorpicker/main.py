@@ -265,6 +265,8 @@ class App(wx.Frame):
             self.gridSizer.Layout()
     
     def on_color_picker_pressed(self,event):
+        try: self.HSVroundingFactor = int(self.HSVround.GetValue())
+        except: self.outputUpdate("Invalid rounding factor"); return
         if self.chosenFile != None: image = Image.open(self.chosenFile)
         else: self.outputUpdate("No file chosen"); return
         pixels = image.load()
