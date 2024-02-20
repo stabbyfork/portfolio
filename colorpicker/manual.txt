@@ -6,3 +6,5 @@ Enter HSV values in the format:
 ddd, dd%, dd%
 Do not include %.
 Replace 'd' with your numbers.
+Enter 'enter'/'return' while focused on the Mouse Position field to move your mouse cursor to that position.
+Enter a set of 2 numbers (X and Y) in the Mouse Position field to move your mouse cursor to that position.
