@@ -10,6 +10,7 @@ Enter a set of 2 numbers (X and Y) in the Mouse Position field to move your mous
 
 Press F1 to capture the mouse position.
 Press F2 to move to the captured mouse position.
+Press F3 to take a screenshot.
 
 Enter HSV values in the format:
 ddd, dd%, dd%
