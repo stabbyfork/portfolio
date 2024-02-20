@@ -1,0 +1,8 @@
+Source: https://github.com/stabbyfork/stuff/tree/main/colorpicker
+
+Run the Python file, a window should open.
+Press F1 to capture the mouse position.
+Enter HSV values in the format:
+ddd, dd%, dd%
+Do not include %.
+Replace 'd' with your numbers.
