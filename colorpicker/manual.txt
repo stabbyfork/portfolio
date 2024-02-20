@@ -1,10 +1,20 @@
 Source: https://github.com/stabbyfork/stuff/tree/main/colorpicker
 
 Run the Python file, a window should open.
+
+Choose a file to scan/pick.
+The captured mouse position will be translated into image coordinates for picking the color.
+
+Enter 'enter'/'return' while focused on the Mouse Position field to move your mouse cursor to that position.
+Enter a set of 2 numbers (X and Y) in the Mouse Position field to move your mouse cursor to that position.
+
 Press F1 to capture the mouse position.
+Press F2 to move to the captured mouse position.
+
 Enter HSV values in the format:
 ddd, dd%, dd%
 Do not include %.
 Replace 'd' with your numbers.
-Enter 'enter'/'return' while focused on the Mouse Position field to move your mouse cursor to that position.
-Enter a set of 2 numbers (X and Y) in the Mouse Position field to move your mouse cursor to that position.
+This value will be the color you scan for.
+
+
