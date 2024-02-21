@@ -1,10 +1,10 @@
 # Source: https://github.com/stabbyfork/stuff/blob/main/colorpicker
 
-# Whether to generate log files or not. Log files have dates and times included, with extra information.
+# Whether to generate log files or not. Log files have dates and times included, with extra information. (valid values: 'true','false'; default: 'false')
 generateLogFiles = false
 
-# Include time in the standard (window) output.
+# Include time in the standard (window) output. (valid values: 'true','false'; default: 'true')
 showTime = true
 
-# Set to true to reset settings to the defaults when this window is closed.
+# Set to true to reset settings to the defaults when this window is closed. (valid values: 'true','false'; default: 'false')
 resetToDefaults = false
