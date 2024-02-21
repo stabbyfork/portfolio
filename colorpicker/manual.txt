@@ -12,6 +12,10 @@ Press F1 to capture the mouse cursor position.
 Press F2 to move the mouse cursor to the captured mouse position.
 Press F3 to take a screenshot.
 
+Hold CTRL + KEY to use the respective action when the main window is out of focus.
+eg. CTRL + F1 captures the mouse cursor position, even when the main window is out of focus.
+ONLY WORKS FOR F<n> KEYS CURRENTLY
+
 Enter HSV values in the format:
 ddd, dd%, dd%
 Do not include %.
