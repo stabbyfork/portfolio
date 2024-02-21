@@ -1,3 +1,5 @@
+# Source: https://github.com/stabbyfork/stuff/edit/main/colorpicker
+
 title = "Colorpicker configuration"
 
 # Whether to generate log files or not. Log files have dates and times included, with extra information.
