@@ -6,6 +6,7 @@ import wx
 import os
 import re
 import urllib.request
+import time
 
 # thank you https://stackoverflow.com/questions/24852345/hsv-to-rgb-color-conversion!!
 def HSVtoRGB(h,s,v):
@@ -174,15 +175,18 @@ class App(wx.Frame):
 
         self.scanButton = wx.Button(self.panel, label=f"Scan image")
         self.isDecimalCheckbox = wx.CheckBox(self.panel, label="Decimal HSV")
-        self.output = wx.TextCtrl(self.panel, value="Output:\n", style=wx.TE_READONLY | wx.TE_MULTILINE)
+        self.output = wx.TextCtrl(self.panel, value="Output:\n", style=wx.TE_READONLY | wx.TE_MULTILINE, size=(-1,250))
         self.windowTypeCheckbox = wx.CheckBox(self.panel, label='Window type: normal')
 
         self.manualButton = wx.Button(self.panel, label="Manual")
         self.saveDataButton = wx.Button(self.panel, label="Save pixel data")
 
 
-        self.windowTypeCheckbox.Bind(wx.EVT_CHECKBOX, self.on_window_checkbox_pressed)
         self.Bind(wx.EVT_CHAR_HOOK, self.on_F1_key_pressed)
+        self.Bind(wx.EVT_CHAR_HOOK, self.on_F2_key_pressed)
+        self.Bind(wx.EVT_CHAR_HOOK, self.on_F3_key_pressed)
+
+        self.windowTypeCheckbox.Bind(wx.EVT_CHECKBOX, self.on_window_checkbox_pressed)
         self.ImageSelect.Bind(wx.EVT_BUTTON, self.on_image_select_pressed)
         self.ColorPickerButton.Bind(wx.EVT_BUTTON, self.on_color_picker_pressed)
         self.screenshotButton.Bind(wx.EVT_BUTTON, self.on_screenshot_button)
@@ -248,6 +252,27 @@ class App(wx.Frame):
         else:
             event.Skip()
     
+    def on_F2_key_pressed(self, event):
+        if event.GetKeyCode() == wx.WXK_F2:
+            if self.X != None and self.Y != None:
+                pyagui.moveTo(self.X, self.Y)
+                self.outputUpdate(f"Mouse moved to ({self.X}, {self.Y})")
+            else:
+                self.outputUpdate("No position captured")
+                event.Skip()
+        else:
+            event.Skip()
+    
+    def on_F3_key_pressed(self, event):
+        if event.GetKeyCode() == wx.WXK_F3:
+            pyagui.screenshot("./screenshot.png")
+            self.chosenFile = "screenshot.png"
+            self.scanButton.SetLabel(f"Scan {self.chosenFile}")
+            self.ImageSelect.SetLabel(f"Chosen: {self.chosenFile}")
+            self.outputUpdate("Screenshot taken")
+        else:
+            event.Skip()
+    
     def on_image_select_pressed(self,event):
         with wx.FileDialog(self,"Open image file",wildcard="Image files (*.png; *.jpeg)|*.png;*.jpeg", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileBrowser:
             if fileBrowser.ShowModal() == wx.ID_CANCEL:
@@ -256,6 +281,7 @@ class App(wx.Frame):
             path = fileBrowser.GetPath()
             if os.path.isfile(path):
                 self.chosenFile = path
+                self.outputUpdate("Image chosen")
             self.ImageSelect.Label = f"Chosen: {os.path.basename(path)}"
             self.scanButton.SetLabel(f"Scan {os.path.basename(self.chosenFile)}")
             self.XSize = Image.open(self.chosenFile).size[0]
@@ -344,8 +370,10 @@ class App(wx.Frame):
         if isinstance(output, list):
             output[0] = "\n" + output[0]
             for out in output:
+                out = time.strftime("%H:%M:%S: ") + out
                 self.outputList.append(str(out))
         else:
+            output = time.strftime("%H:%M:%S: ") + output
             self.outputList.append(str(output))
         while len(self.outputList) > 5:
             self.outputList.pop(0)
@@ -373,7 +401,8 @@ class App(wx.Frame):
             for i in range(len(pix)):
                 pix[i] = round(pix[i],self.HSVroundingFactor)
             pix = tuple(pix)
-            file.write(str(pix)+"\n")
+            file.write(str(pix))
+
         file.close()
         image.close()
         self.outputUpdate(f"Saved pixel data to {os.path.abspath('./pixels.txt')}")
@@ -392,9 +421,7 @@ class textDisplayWindow(wx.Frame):
         self.Bind(wx.EVT_SIZE, self.on_resize)
 
         if isURL:
-            website = urllib.request.urlopen(path)
-            self.fullDisplayText.SetValue(website.read())
-            website.close()
+            self.fullDisplayText.SetValue(urllib.request.urlopen(path).read())
         else:
             self.fullDisplayText.SetValue(open(path).read())
 
