@@ -8,8 +8,8 @@ The captured mouse position will be translated into image coordinates for pickin
 Enter 'enter'/'return' while focused on the Mouse Position field to move your mouse cursor to that position.
 Enter a set of 2 numbers (X and Y) in the Mouse Position field to move your mouse cursor to that position.
 
-Press F1 to capture the mouse position.
-Press F2 to move to the captured mouse position.
+Press F1 to capture the mouse cursor position.
+Press F2 to move the mouse cursor to the captured mouse position.
 Press F3 to take a screenshot.
 
 Enter HSV values in the format:
