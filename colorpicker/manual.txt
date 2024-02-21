@@ -18,4 +18,4 @@ Do not include %.
 Replace 'd' with your numbers.
 This value will be the color you scan for.
 
-
+'Save pixel data' saves a (unordered, unchanged) set (without duplicates) of all pixel colors found in the selected image in the HSV color format, each rounded to the HSV rounding factor set in the main GUI.
