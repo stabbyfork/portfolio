@@ -1,0 +1,10 @@
+title = "Colorpicker configuration"
+
+# Whether to generate log files or not. Log files have dates and times included, with extra information.
+generateLogFiles = false
+
+# Include time in standard (window) output.
+showTime = true
+
+# Set to true to reset settings to the defaults when this window is closed.
+resetToDefaults = false
