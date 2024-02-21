@@ -7,106 +7,82 @@ import os
 import re
 import urllib.request
 import time
+import tomllib
 
-# thank you https://stackoverflow.com/questions/24852345/hsv-to-rgb-color-conversion!!
-def HSVtoRGB(h,s,v):
-    return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h,s,v))
 
-# input values here
-#choice = input("Find a pixel by HSV, or find a pixel by location (enter 'color/location') \n")
-#if "color" == str.lower(choice) or "location" == str.lower(choice):
-   # choice == str.lower(choice)
-   # print("valid task")
-#else:
-    #exit(f"invalid task '{choice}'")
 
 #image path
 imgPath = None
-#imgPath = "colorguionly.png"
-#xOrig = 811 #for colorguifull.png
 xOrig = 0
-#yOrig = 322 #for colorguifull.png
 yOrig = 0
-#xSize = 270 #for colorguifull.png
 xSize = 1919
-#ySize = 259 #for colorguifull.png
-
 ySize = 1079
 #pixel to be searched
 pixel = [1076,659]
 #HSV color
 hsv = ()
 #number of decimal places for HSV colors
-hsvRoundingFactor = 2
 
-#hsv = (0.09, 0.52, 0.51)
 
-#inputs
-#if hsv == ():
-   # hsv = convToStructure(input("Enter HSV color:\n"))
 
-#if pixel == [] and choice == "location":
-    #pixel = convToStructure("[" + input("Input pixel x and y values separated by a comma.\n") + "]")
 
-#if imgPath == None:
-    #inp = input("Image path (enter 'screenshot' for screenshot)\n")
-    #if inp != "screenshot":
-        #imgPath = inp
-    #else:
-        #pyagui.screenshot("D:\VSCode\Python\colorpicker\screenshot.png")
-        #print("screenshot taken")
-        #imgPath = "D:\VSCode\Python\colorpicker\screenshot.png"
 
 
 
 
 #scan pixels for HSV color
-def scanPixelsHSV(imagePath, hsv, XSize,YSize, HSVrounding, isDecimal):
+def scanPixelsHSV(imagePath, hsv, XSize,YSize, HSVrounding, isDecimal, config):
     outList = []
+    townSetting = config.get("townSetting")
+    startX = 0
+    startY = 0
     image = Image.open(imagePath)
     pixels = image.load()
+    #print(imagePath)
+    if townSetting and os.path.basename(imagePath) != ("screenshot.png") and os.path.basename(imagePath) != ("product.png"): return "'townSetting' only works with screenshots!"
+    if townSetting:
+        startX = 816
+        startY = 326
+        XSize = 262
+        YSize = 251
+        if imagePath != "./product.png":
+            img = Image.new(image.mode, image.size)
+            pixelsNew = img.load()
     if not isDecimal:
         (h,s,v) = hsv
         hsv = (round(h/360,HSVrounding),round(s/100,HSVrounding),round(v/100,HSVrounding))
-    for x in range(XSize): # X
-        for y in range(YSize): # Y
+    for x in range(startX,startX + XSize): # X
+        for y in range(startY,startY + YSize): # Y
             (r, g, *b) = pixels[x,y]
             modPixel = (colorsys.rgb_to_hsv(r/256, g/256, b[0]/256))
             modPixel = list(modPixel)
+
+            #print(x,y)
+            if townSetting and imagePath != "./product.png":
+                img.putpixel((x,y),(round(r/0.78125), round(g/0.78125), round(b[0]/0.78125)))
+                #print("doing this")
             for i in range(len(modPixel)):
                 modPixel[i] = round(modPixel[i],HSVrounding)
-            modPixel = tuple(modPixel)
+            modPixel = tuple(modPixel)       
             if modPixel == hsv:
                 outList.append("Found pixel")
                 outList.append(f'X,Y: {[x,y]}')
                 outList.append(f'RGB(A): {pixels[x,y]}')
                 outList.append(f"HSV: {hsv}")
+                if townSetting and imagePath != "./product.png": outList.append("Pixel was found before stage 2")
                 pyagui.moveTo(x,y)
                 return outList
-    outList.append("Pixel not found")
-    outList.append(f"HSV used: {hsv}")
+    if townSetting and imagePath != "./product.png":
+        outList.append("Starting stage 2")
+        img.save("product.png")
+    else:
+        outList.append("Pixel not found")
+        outList.append(f"HSV used: {hsv}")
     return outList
 
 
 
-#update this
-if 1 > 2: #str.lower(input("Update pixels.txt?\n")) == "y":
-    image = Image.open(imgPath)
-    pixels = image.load()
-    pixelsSet = set(image.getdata())
-    file = open("pixels.txt", "w")
-    for pix in pixelsSet:
-        (r, g, *b) = pix
-        pix = (colorsys.rgb_to_hsv(r/256, g/256, b[0]/256))
-        pix = list(pix)
-        for i in range(len(pix)):
-            pix[i] = round(pix[i],hsvRoundingFactor)
-        pix = tuple(pix)
-        file.write(str(pix)+"\n")
-    file.close()
-    image.close()
-    xSize = image.size[0]
-    ySize = image.size[1]
+
 
 x = xOrig
 y = yOrig
@@ -116,27 +92,7 @@ y = yOrig
 
 
 
-#update this
-if 2 < 1:
-    if len(pixel) > 0:
-        if pixel[0] < xSize and pixel[1] < ySize:
-            print(f"RGBA: {pixels[pixel[0], pixel[1]]}")
-            (r, g, *b) = pixels[pixel[0], pixel[1]]
-            #del(a)
-            pix = (colorsys.rgb_to_hsv(r/256, g/256, b[0]/256))
-            pix = list(pix)
-            for i in range(len(pix)):
-                pix[i] = round(pix[i],hsvRoundingFactor)
-            pix = tuple(pix)
-            print(f"HSV: {pix}")
-            print(f"x,y: {pixel}")
-        else:
-            print(f"pixel out of bounds: {pixel}")
-    else:
-        print("pixel has not been entered")
-#else:
-    #scanPixelsHSV(x,y)
-    #print("supposed to scan but commented")
+
 
 
 #Application
@@ -144,6 +100,7 @@ class App(wx.Frame):
     def __init__(self):
         super().__init__(parent=None, title="Color Picker and Finder")
 
+        # vars
         self.HSVcolor = None
         self.chosenFile = None
         self.X = None
@@ -157,12 +114,19 @@ class App(wx.Frame):
 
         self.outputList = []
 
+        # config loading
+        if not os.path.exists("./config.toml"):
+            urllib.request.urlretrieve("https://raw.githubusercontent.com/stabbyfork/stuff/main/colorpicker/config.toml", "./config.toml")
+        self.config = tomllib.loads(open("./config.toml", "r").read())
+
         self.panel = wx.Panel(self)
         
 
+        # sizers
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.gridSizer = wx.FlexGridSizer(4,4,1,1)
 
+        # widgets/windows
         self.HSVdesc = wx.StaticText(self.panel,label="HSV color:")
         self.HSV = wx.TextCtrl(self.panel, value="180, 50, 50",style=wx.TE_PROCESS_ENTER)
         self.HSVroundDesc = wx.StaticText(self.panel,label="HSV rounding factor:")
@@ -179,13 +143,19 @@ class App(wx.Frame):
         self.windowTypeCheckbox = wx.CheckBox(self.panel, label='Window type: normal')
 
         self.manualButton = wx.Button(self.panel, label="Manual")
+        self.settingsButton = wx.Button(self.panel, label="Settings")
         self.saveDataButton = wx.Button(self.panel, label="Save pixel data")
 
+        # hotkeys
+        self.RegisterHotKey(1, wx.MOD_CONTROL, wx.WXK_F1)
+        self.RegisterHotKey(2, wx.MOD_CONTROL, wx.WXK_F2)
 
+        # F<n> binds
         self.Bind(wx.EVT_CHAR_HOOK, self.on_F1_key_pressed)
         self.Bind(wx.EVT_CHAR_HOOK, self.on_F2_key_pressed)
         self.Bind(wx.EVT_CHAR_HOOK, self.on_F3_key_pressed)
 
+        # other binds
         self.windowTypeCheckbox.Bind(wx.EVT_CHECKBOX, self.on_window_checkbox_pressed)
         self.ImageSelect.Bind(wx.EVT_BUTTON, self.on_image_select_pressed)
         self.ColorPickerButton.Bind(wx.EVT_BUTTON, self.on_color_picker_pressed)
@@ -196,7 +166,13 @@ class App(wx.Frame):
         self.HSV.Bind(wx.EVT_TEXT_ENTER, self.on_HSV_entered)
         self.manualButton.Bind(wx.EVT_BUTTON, self.on_manual_press)
         self.saveDataButton.Bind(wx.EVT_BUTTON, self.on_save_pixel_press)
+        self.settingsButton.Bind(wx.EVT_BUTTON, self.on_settings_press)
 
+        # hotkey binds
+        self.Bind(wx.EVT_HOTKEY,self.ctrl_F1_hotkey, id=1)
+        self.Bind(wx.EVT_HOTKEY,self.ctrl_F2_hotkey, id=2)
+
+        # grid sizer add
         self.gridSizer.AddMany([
             (self.HSVdesc, 0, wx.ALL , 5),
             (self.HSV, 0, wx.ALL , 5),
@@ -215,6 +191,7 @@ class App(wx.Frame):
 
             (self.manualButton, 0, wx.ALL , 5),
             (self.saveDataButton, 0, wx.ALL , 5),
+            (self.settingsButton, 0, wx.ALL , 5),
         ])
         
         sizer.Add(self.gridSizer)
@@ -223,8 +200,36 @@ class App(wx.Frame):
         self.panel.SetSizer(sizer)
 
         self.Show()
+
+    def ctrl_F1_hotkey(self,event):
+        self.confUpd()
+        self.X, self.Y = pyagui.position()
+        self.mousePositionText.SetValue(f"Mouse X: {self.X} Y: {self.Y}")
+        self.ColorPickerButton.Label = f"Pick color at X {self.X}, Y {self.Y}"
+        self.outputUpdate("Mouse (position) captured")
+
+        self.gridSizer.Fit(self)
+        self.gridSizer.Layout()
+
+    def ctrl_F2_hotkey(self,event):
+        self.confUpd()
+        if self.X != None and self.Y != None:
+                pyagui.moveTo(self.X, self.Y)
+                if self.config.get("townSetting"):
+                    for i in range(5):
+                        pyagui.dragRel(-10,0,1)
+                        time.sleep(0.2)
+                        pyagui.dragRel(10,0,1)
+                self.outputUpdate(f"Mouse moved to ({self.X}, {self.Y})")
+        else:
+            self.outputUpdate("No position captured")
+            event.Skip()
+
+        self.gridSizer.Fit(self)
+        self.gridSizer.Layout()
     
     def on_window_checkbox_pressed(self, event):
+        self.confUpd()
         if self.defaultWindowStyle == None: self.defaultWindowStyle = self.GetWindowStyle()
         if self.windowTypeCheckbox.IsChecked():
             self.windowTypeCheckbox.Label = "Window type: top"
@@ -241,11 +246,12 @@ class App(wx.Frame):
 
 
     def on_F1_key_pressed(self, event):
+        self.confUpd()
         if event.GetKeyCode() == wx.WXK_F1:
             (self.X, self.Y) = pyagui.position()
             self.mousePositionText.SetValue(f"Mouse X: {self.X} Y: {self.Y}")
             self.ColorPickerButton.Label = f"Pick color at X {self.X}, Y {self.Y}"
-            self.outputUpdate("Mouse (position) captured")
+            self.outputUpdate(f"Mouse ({self.X}, {self.Y}) captured")
 
             self.gridSizer.Fit(self)
             self.gridSizer.Layout()
@@ -253,9 +259,13 @@ class App(wx.Frame):
             event.Skip()
     
     def on_F2_key_pressed(self, event):
+        self.confUpd()
         if event.GetKeyCode() == wx.WXK_F2:
             if self.X != None and self.Y != None:
                 pyagui.moveTo(self.X, self.Y)
+                pyagui.moveRel(-10,0)
+                time.sleep(0.2)
+                pyagui.moveRel(10,0)
                 self.outputUpdate(f"Mouse moved to ({self.X}, {self.Y})")
             else:
                 self.outputUpdate("No position captured")
@@ -264,9 +274,12 @@ class App(wx.Frame):
             event.Skip()
     
     def on_F3_key_pressed(self, event):
+        self.confUpd()
         if event.GetKeyCode() == wx.WXK_F3:
             pyagui.screenshot("./screenshot.png")
             self.chosenFile = "screenshot.png"
+            self.XSize = Image.open(self.chosenFile).size[0]
+            self.YSize = Image.open(self.chosenFile).size[1]
             self.scanButton.SetLabel(f"Scan {self.chosenFile}")
             self.ImageSelect.SetLabel(f"Chosen: {self.chosenFile}")
             self.outputUpdate("Screenshot taken")
@@ -274,6 +287,7 @@ class App(wx.Frame):
             event.Skip()
     
     def on_image_select_pressed(self,event):
+        self.confUpd()
         with wx.FileDialog(self,"Open image file",wildcard="Image files (*.png; *.jpeg)|*.png;*.jpeg", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileBrowser:
             if fileBrowser.ShowModal() == wx.ID_CANCEL:
                 self.outputUpdate("Cancelled file selection")
@@ -291,6 +305,7 @@ class App(wx.Frame):
             self.gridSizer.Layout()
     
     def on_color_picker_pressed(self,event):
+        self.confUpd()
         try: self.HSVroundingFactor = int(self.HSVround.GetValue())
         except: self.outputUpdate("Invalid rounding factor"); return
         if self.chosenFile != None: image = Image.open(self.chosenFile)
@@ -315,6 +330,7 @@ class App(wx.Frame):
             self.outputUpdate("Empty coordinates, use F1")
     
     def on_screenshot_button(self,event):
+        self.confUpd()
         pyagui.screenshot("./screenshot.png")
         self.chosenFile = "./screenshot.png"
         self.outputUpdate("Screenshot taken")
@@ -327,6 +343,7 @@ class App(wx.Frame):
         self.gridSizer.Layout()
     
     def on_coords_entered(self,event):
+        self.confUpd()
         pattern = re.findall(r"\d+", self.mousePositionText.GetValue())
         if pattern:
             if len(pattern) > 0: self.X = int(pattern[0]); self.outputUpdate("X value updated") 
@@ -343,6 +360,7 @@ class App(wx.Frame):
             self.gridSizer.Layout()
     
     def on_scan(self,event):
+        self.confUpd()
         if self.chosenFile == None: self.outputUpdate("No file chosen"); return
         try: self.HSVcolor = convToStructure(f"({self.HSV.GetValue()})")
         except: self.outputUpdate("Invalid color"); return
@@ -350,8 +368,12 @@ class App(wx.Frame):
         except: self.outputUpdate("Invalid rounding factor"); return
         label = self.scanButton.GetLabel()
         self.scanButton.SetLabel("Scanning")
-        try: self.outputUpdate(scanPixelsHSV(self.chosenFile, self.HSVcolor, self.XSize, self.YSize, self.HSVroundingFactor, self.isDecimal))
-        except: self.outputUpdate("Error during scan")
+        #try: 
+        self.outputUpdate(scanPixelsHSV(self.chosenFile, self.HSVcolor, self.XSize, self.YSize, self.HSVroundingFactor, self.isDecimal, self.config))
+        if self.config.get("townSetting"):
+            self.outputUpdate(scanPixelsHSV("./product.png", self.HSVcolor, self.XSize, self.YSize, self.HSVroundingFactor, self.isDecimal, self.config))
+        #except Exception as e: self.outputUpdate("Error during scan"); print(e)
+        #finally:
         self.scanButton.SetLabel(label)
 
         self.gridSizer.Fit(self)
@@ -367,58 +389,86 @@ class App(wx.Frame):
         else: self.isDecimal = False
 
     def outputUpdate(self, output):
+        self.confUpd()
         if isinstance(output, list):
+            if self.config.get("showTime"):
+                output[0] = time.strftime("%H:%M:%S: ") + output[0]
             output[0] = "\n" + output[0]
             for out in output:
-                out = time.strftime("%H:%M:%S: ") + out
+                out += ";\n"
                 self.outputList.append(str(out))
         else:
-            output = time.strftime("%H:%M:%S: ") + output
+            if self.config.get("showTime"):
+                output = time.strftime("%H:%M:%S: ") + output
+            output += ";\n"
             self.outputList.append(str(output))
         while len(self.outputList) > 5:
             self.outputList.pop(0)
         self.output.Value = "Output:\n"
         for out in self.outputList:
-            self.output.Value = self.output.Value + out + ";\n"
+            self.output.Value = self.output.Value + out
         
         self.gridSizer.Fit(self)
         self.gridSizer.Layout()
 
     def on_manual_press(self,event):
-        textDisplayWindow(self,"Manual","https://raw.githubusercontent.com/stabbyfork/stuff/main/colorpicker/manual.txt", True)
+        textDisplayWindow(self,"Manual","https://raw.githubusercontent.com/stabbyfork/stuff/main/colorpicker/manual.txt", True, True)
 
     def on_save_pixel_press(self,event):
+        self.confUpd()
         try: self.HSVroundingFactor = int(self.HSVround.GetValue())
         except: self.outputUpdate("Invalid rounding factor"); return
         if self.chosenFile != None: image = Image.open(self.chosenFile)
         else: self.outputUpdate("No file chosen"); return
-        pixelsSet = set(image.getdata())
+        self.saveDataButton.SetLabel("Saving")
+        pixelsSet = image.getdata()
         file = open("pixels.txt", "w")
         for pix in pixelsSet:
             (r, g, *b) = pix
             pix = (colorsys.rgb_to_hsv(r/256, g/256, b[0]/256))
             pix = list(pix)
+            pix = [pix[0]*360,pix[1]*100,pix[2]*100]
             for i in range(len(pix)):
-                pix[i] = round(pix[i],self.HSVroundingFactor)
+                pix[i] = round(pix[i],self.HSVroundingFactor - 2)
             pix = tuple(pix)
-            file.write(str(pix))
+            file.write(str(pix) + "\n")
 
         file.close()
         image.close()
+        self.saveDataButton.SetLabel("Save pixel data")
         self.outputUpdate(f"Saved pixel data to {os.path.abspath('./pixels.txt')}")
+    
+    def on_settings_press(self,event):
+        textDisplayWindow(self,"Configuration","./config.toml", False, False)
+
+    def confUpd(self):
+        self.config = tomllib.loads(open("./config.toml","r").read())
+
 
 
 class textDisplayWindow(wx.Frame):
-    def __init__(self, parent, title, path, isURL):
-        super().__init__(parent=parent, title=title)
+    def __init__(self, parent=None, title="Window", path="./config.toml", isURL=False, isReadOnly=True, id=wx.ID_ANY):
+        super().__init__(parent=parent, title=title, id=id)
         self.panel = wx.Panel(self)
         self.sizer = wx.BoxSizer()
-        
-        self.fullDisplayText = wx.TextCtrl(self.panel, size=(self.Size[0],self.Size[1]), style=wx.TE_READONLY | wx.TE_MULTILINE | wx.TE_RICH | wx.TE_AUTO_URL)
 
-        self.sizer.Add(self.fullDisplayText, 0, wx.SHAPED , 0)
+        self.path = path
+        
+        if isReadOnly:
+            self.fullDisplayText = wx.TextCtrl(self.panel, size=(self.Size[0],self.Size[1]), style=wx.TE_READONLY | wx.TE_MULTILINE | wx.TE_RICH | wx.TE_AUTO_URL)
+        else:
+            self.fullDisplayText = wx.TextCtrl(self.panel, size=(self.Size[0],self.Size[1]), style=wx.TE_MULTILINE | wx.TE_RICH | wx.TE_AUTO_URL)
+            self.saveButton = wx.Button(self.panel, label=f"Save to {os.path.basename(path)}")
+
+            self.saveButton.Bind(wx.EVT_BUTTON, self.on_save)
+
+        if isReadOnly:
+            self.sizer.Add(self.fullDisplayText, 0, wx.SHAPED, 0)
+        else:
+            self.sizer.Add(self.fullDisplayText, 0, wx.TOP , 25)
 
         self.Bind(wx.EVT_SIZE, self.on_resize)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
 
         if isURL:
             self.fullDisplayText.SetValue(urllib.request.urlopen(path).read())
@@ -431,8 +481,19 @@ class textDisplayWindow(wx.Frame):
         self.sizer.Layout()
         self.fullDisplayText.SetSize(self.Size[0], self.Size[1])
         event.Skip()
+    
+    def on_save(self,event):
+        self.saveButton.SetLabel("Saving")
+        time.sleep(0.2)
+        open(self.path, "w").write(self.fullDisplayText.GetValue())
+        self.saveButton.SetLabel(f"Save to {os.path.basename(self.path)}")
+
+    def on_close(self,event):
+        event.Skip()
+
 
 if __name__ == "__main__":
     app = wx.App()
     frame = App()
     app.MainLoop()
+# https://github.com/stabbyfork/stuff/tree/main/colorpicker
