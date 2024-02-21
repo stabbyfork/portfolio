@@ -8,4 +8,5 @@ generateLogFiles = false
 # Include time in the standard (window) output. (valid values: 'true','false'; default: 'true')
 showTime = true
 
-
+# Use a setting for the painting GUI in a very specific Roblox game (town). (valid values: 'true','false'; default: 'false')
+townSetting = false
