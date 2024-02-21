@@ -1,0 +1,4 @@
+DEPENDENCIES:
+PIL (pip install Pillow)
+pyautogui (pip install pyautogui)
+wx (pip install wxpython)
